@@ -22,6 +22,8 @@ interface IAuthContextValue {
   isLoading: boolean;
   login: (payload: ILoginPayload) => Promise<void>;
   logout: () => Promise<void>;
+  /** Call after successful 2FA enable to mark user as fully onboarded */
+  completeTwoFaSetup: () => void;
 }
 
 // ─── Context creation ────────────────────────────────────────────────────────
@@ -53,12 +55,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   /**
    * Login
-   * Calls API → stores tokens → updates React state → redirects to dashboard
+   * 2FA-aware login:
+   *  1. If top-level isRequire2FA=true → challenge required → redirect to /verify-2fa
+   *     (temp credentials are stored in the form itself, not in cookies)
+   *  2. If user.isRequire2FA=true → tokens issued, but user needs setup → redirect /setup-2fa
+   *  3. Normal login → redirect to dashboard
    */
   const login = useCallback(
     async (payload: ILoginPayload) => {
-      const { user: authUser } = await authApiService.login(payload);
-      setUser(authUser);
+      const response = await authApiService.login(payload);
+
+      // Case 1: Active 2FA challenge (no tokens issued)
+      if (response.isRequire2FA && !response.tokens) {
+        // Don't set user in state — not authenticated yet.
+        // Form stores credentials temporarily for /verify-2fa re-submission.
+        router.replace(PATHS.VERIFY_TWO_FA);
+        return;
+      }
+
+      // Case 2: Logged in but must set up 2FA first
+      if (response.user.isRequire2FA) {
+        setUser(response.user);
+        router.replace(PATHS.SETUP_TWO_FA);
+        return;
+      }
+
+      // Case 3: Normal login, fully authenticated
+      setUser(response.user);
       router.replace(PATHS.DASHBOARD);
     },
     [router],
@@ -74,6 +97,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     router.replace(PATHS.LOGIN);
   }, [router]);
 
+  /**
+   * After the user completes 2FA setup, clear the isRequire2FA flag from state
+   * so the dashboard is accessible without re-login.
+   */
+  const completeTwoFaSetup = useCallback(() => {
+    setUser((prev) => (prev ? { ...prev, isRequire2FA: false } : prev));
+  }, []);
+
   const value = useMemo<IAuthContextValue>(
     () => ({
       user,
@@ -81,8 +112,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isLoading,
       login,
       logout,
+      completeTwoFaSetup,
     }),
-    [user, isLoading, login, logout],
+    [user, isLoading, login, logout, completeTwoFaSetup],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

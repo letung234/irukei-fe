@@ -63,3 +63,47 @@ export const changePasswordSchema = z
   });
 
 export type ChangePasswordFormValues = z.infer<typeof changePasswordSchema>;
+
+// ─── 2FA Schemas ─────────────────────────────────────────────────────────────
+
+/**
+ * verifyOtpSchema
+ * Verify-2FA form: user can enter a 6-digit TOTP OR a 16-char backup code.
+ * At least one must be provided (server enforces this too).
+ */
+export const verifyOtpSchema = z
+  .object({
+    otp: z
+      .string()
+      .optional()
+      .refine((v) => !v || /^\d{6}$/.test(v), {
+        message: "OTP must be exactly 6 digits",
+      })
+      .transform((v) => v || undefined),
+    backupCode: z
+      .string()
+      .optional()
+      .refine((v) => !v || v.length >= 10, {
+        message: "Backup code must be at least 10 characters",
+      })
+      .transform((v) => v?.trim() || undefined),
+  })
+  .refine((data) => data.otp || data.backupCode, {
+    message: "Please enter an OTP code or a backup code",
+    path: ["otp"],
+  });
+
+export type VerifyOtpFormValues = z.infer<typeof verifyOtpSchema>;
+
+/**
+ * enableTwoFaSchema
+ * Setup-2FA form: just the 6-digit OTP from the authenticator app.
+ */
+export const enableTwoFaSchema = z.object({
+  code: z
+    .string({ required_error: "OTP code is required" })
+    .length(6, "OTP must be exactly 6 digits")
+    .regex(/^\d{6}$/, "OTP must contain only digits"),
+});
+
+export type EnableTwoFaFormValues = z.infer<typeof enableTwoFaSchema>;

@@ -1,18 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import { TOKEN_KEYS, PUBLIC_ROUTES } from "@/constants";
+import { TOKEN_KEYS, PUBLIC_ROUTES, TWO_FA_ROUTES } from "@/constants";
 
 /**
  * Next.js Middleware — Route Protection
  *
- * Runs on the Edge runtime before every page render.
- * Mirrors irukei's src/middleware.ts pattern:
- *  - If the route is public (login, forgot-password, reset-password) → allow
- *  - If the user has a valid access token cookie → allow
- *  - Otherwise → redirect to /login
+ * Handles three route tiers:
+ *  1. Public routes (login, forgot-password, reset-password)
+ *  2. 2FA routes (verify-2fa, setup-2fa) — special access rules
+ *  3. Protected routes — require valid access token
  *
- * NOTE: JWT signature is NOT verified here (Edge runtime limitations).
- *       The BE validates the token on every API call.
- *       For production, use jose to verify the token on the Edge.
+ * Mirrors irukei's twoFAMiddleware.ts + main middleware.ts pattern.
  */
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -26,21 +23,50 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  const accessToken = request.cookies.get(TOKEN_KEYS.ACCESS_TOKEN)?.value;
+  const isAuthenticated = Boolean(accessToken);
+
+  // ── 2FA Routes ──────────────────────────────────────────────────────────────
+
+  if (pathname === TWO_FA_ROUTES.VERIFY) {
+    // /verify-2fa: accessible only if NOT fully authenticated AND has temp 2FA credential cookie
+    // Mirrors irukei's verifyTwoFARedirectTo logic
+    if (isAuthenticated) {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+    const twoFaCredential = request.cookies.get(
+      TOKEN_KEYS.TWO_FA_CREDENTIAL,
+    )?.value;
+    if (!twoFaCredential) {
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
+    return NextResponse.next();
+  }
+
+  if (pathname === TWO_FA_ROUTES.SETUP) {
+    // /setup-2fa: requires authentication (user is logged in but 2FA not set up yet)
+    // Mirrors irukei's twoFAMiddleware SETUP_TWO_FA logic
+    if (!isAuthenticated) {
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
+    return NextResponse.next();
+  }
+
+  // ── Public Routes ────────────────────────────────────────────────────────────
+
   const isPublicRoute = PUBLIC_ROUTES.some(
     (route) => pathname === route || pathname.startsWith(route + "/"),
   );
 
-  const accessToken = request.cookies.get(TOKEN_KEYS.ACCESS_TOKEN)?.value;
-
   // Authenticated user trying to access auth pages → redirect to dashboard
-  if (isPublicRoute && accessToken) {
+  if (isPublicRoute && isAuthenticated) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
   // Unauthenticated user trying to access protected page → redirect to login
-  if (!isPublicRoute && !accessToken) {
+  if (!isPublicRoute && !isAuthenticated) {
     const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("from", pathname); // preserve intended destination
+    loginUrl.searchParams.set("from", pathname);
     return NextResponse.redirect(loginUrl);
   }
 

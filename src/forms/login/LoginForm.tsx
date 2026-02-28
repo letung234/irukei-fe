@@ -6,23 +6,28 @@ import Link from "next/link";
 import { useState } from "react";
 import { loginSchema, LoginFormValues } from "@/schemas/auth.schema";
 import { useAuth } from "@/context/AuthContext";
+import authApiService from "@/services/auth.service";
+import tokenService from "@/services/token.service";
 import { getApiErrorMessage } from "@/utils/cn";
 import Input from "@/components/ui/Input";
 import PasswordInput from "@/components/ui/PasswordInput";
 import Button from "@/components/ui/Button";
 import AlertBanner from "@/components/ui/AlertBanner";
 import { PATHS } from "@/constants/paths";
+import { useRouter } from "next/navigation";
 
 /**
  * LoginForm
- * Mirrors irukei's forms/login-form/login.tsx structure:
- *  - useForm + zodResolver
- *  - Separate isLoading state
- *  - Error surfaced via AlertBanner
- *  - API call delegated to AuthContext.login (which calls authApiService.login)
+ * Mirrors irukei's forms/login-form/login.tsx structure.
+ *
+ * 2FA-aware login flow:
+ *  - On 2FA challenge: saves temp credentials to cookie → redirects to /verify-2fa
+ *  - On 2FA setup needed: context.login handles redirect to /setup-2fa
+ *  - Normal login: context.login handles redirect to /dashboard
  */
 export default function LoginForm() {
-  const { login } = useAuth();
+  const { completeTwoFaSetup } = useAuth();
+  const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -40,8 +45,28 @@ export default function LoginForm() {
     setIsLoading(true);
     setServerError(null);
     try {
-      await login({ email: data.email, password: data.password });
-      // Redirect handled inside AuthContext.login
+      const response = await authApiService.login({
+        email: data.email,
+        password: data.password,
+      });
+
+      // 2FA challenge: active challenge, no tokens issued yet
+      if (response.isRequire2FA && !response.tokens) {
+        // Store temp credentials so /verify-2fa can re-submit
+        tokenService.saveTwoFaCredential(data.email, data.password);
+        router.replace(PATHS.VERIFY_TWO_FA);
+        return;
+      }
+
+      // 2FA setup needed: tokens issued but user has not set up 2FA yet
+      if (response.user.isRequire2FA) {
+        completeTwoFaSetup();
+        router.replace(PATHS.SETUP_TWO_FA);
+        return;
+      }
+
+      // Normal login
+      router.replace(PATHS.DASHBOARD);
     } catch (err) {
       setServerError(getApiErrorMessage(err));
     } finally {

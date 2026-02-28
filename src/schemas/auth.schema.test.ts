@@ -7,6 +7,8 @@ import {
   loginSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
+  verifyOtpSchema,
+  enableTwoFaSchema,
 } from "@/schemas/auth.schema";
 
 describe("loginSchema", () => {
@@ -91,6 +93,73 @@ describe("resetPasswordSchema", () => {
       password: "short",
       confirmPassword: "short",
     });
+    expect(result.success).toBe(false);
+  });
+});
+
+describe("verifyOtpSchema", () => {
+  it("should pass when a valid 6-digit OTP is provided", () => {
+    const result = verifyOtpSchema.safeParse({ otp: "123456" });
+    expect(result.success).toBe(true);
+  });
+
+  it("should pass when a valid backup code (≥10 chars) is provided", () => {
+    const result = verifyOtpSchema.safeParse({ backupCode: "ABCD-1234-EFGH" });
+    expect(result.success).toBe(true);
+  });
+
+  it("should pass when both otp and backupCode are provided", () => {
+    const result = verifyOtpSchema.safeParse({
+      otp: "654321",
+      backupCode: "ABCD-1234-EFGH",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("should fail when neither otp nor backupCode is provided", () => {
+    const result = verifyOtpSchema.safeParse({});
+    expect(result.success).toBe(false);
+  });
+
+  it("should fail when OTP is not exactly 6 digits", () => {
+    const result = verifyOtpSchema.safeParse({ otp: "12345" });
+    expect(result.success).toBe(false);
+  });
+
+  it("should fail when OTP contains non-digits", () => {
+    const result = verifyOtpSchema.safeParse({ otp: "12345a" });
+    expect(result.success).toBe(false);
+  });
+
+  it("should fail when backup code is too short (<10 chars)", () => {
+    const result = verifyOtpSchema.safeParse({ backupCode: "SHORT" });
+    expect(result.success).toBe(false);
+  });
+});
+
+describe("enableTwoFaSchema", () => {
+  it("should pass with a valid 6-digit code", () => {
+    const result = enableTwoFaSchema.safeParse({ code: "123456" });
+    expect(result.success).toBe(true);
+  });
+
+  it("should fail when code is not exactly 6 digits", () => {
+    const result = enableTwoFaSchema.safeParse({ code: "12345" });
+    expect(result.success).toBe(false);
+  });
+
+  it("should fail when code is empty", () => {
+    const result = enableTwoFaSchema.safeParse({ code: "" });
+    expect(result.success).toBe(false);
+  });
+
+  it("should fail when code contains non-digits", () => {
+    const result = enableTwoFaSchema.safeParse({ code: "12345a" });
+    expect(result.success).toBe(false);
+  });
+
+  it("should fail when code field is missing", () => {
+    const result = enableTwoFaSchema.safeParse({});
     expect(result.success).toBe(false);
   });
 });

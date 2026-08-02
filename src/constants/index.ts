@@ -1,4 +1,4 @@
-/** Cookie/storage key names  (mirrors irukei's constants/common.ts pattern) */
+/** Cookie/storage key names */
 export const TOKEN_KEYS = {
   ACCESS_TOKEN: "irukei_access_token",
   REFRESH_TOKEN: "irukei_refresh_token",
@@ -8,7 +8,21 @@ export const TOKEN_KEYS = {
 } as const;
 
 export const AUTH_PAGES = ["/login", "/forgot-password", "/reset-password"];
-export const PUBLIC_ROUTES = [...AUTH_PAGES, "/"];
+
+/**
+ * Public routes do not require an access token.
+ * Design-system shells + marketplace are browsable without auth for FE review.
+ */
+export const PUBLIC_ROUTES = [
+  ...AUTH_PAGES,
+  "/",
+  "/marketplace",
+  "/ui",
+  "/app/student",
+  "/app/company",
+  "/app/org",
+  "/admin",
+];
 
 /**
  * 2FA-specific routes.

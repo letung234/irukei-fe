@@ -1,13 +1,21 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "@/styles/globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 
 export const metadata: Metadata = {
   title: {
-    default: "Irukei",
+    default: "Irukei — AI Learning Marketplace",
     template: "%s | Irukei",
   },
-  description: "Irukei — Learning project based on irukei architecture",
+  description:
+    "Irukei: Connect with AI-powered learning roadmaps, offers, and career opportunities",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#0d8a85",
+  colorScheme: "light",
 };
 
 export default function RootLayout({
@@ -16,8 +24,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body>
+    <html lang="en" className="bg-bg">
+      <body className="bg-bg text-ink">
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>

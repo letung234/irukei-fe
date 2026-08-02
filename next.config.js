@@ -4,11 +4,16 @@ const nextConfig = {
   reactStrictMode: true,
 
   // All API calls go through /api/* proxy → no CORS issues in dev
+  // Only add rewrites if API base URL is configured
   async rewrites() {
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+    if (!apiBaseUrl) {
+      return [];
+    }
     return [
       {
         source: "/api/:path*",
-        destination: `${process.env.NEXT_PUBLIC_API_BASE_URL}/:path*`,
+        destination: `${apiBaseUrl}/:path*`,
       },
     ];
   },

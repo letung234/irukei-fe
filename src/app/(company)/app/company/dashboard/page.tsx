@@ -18,13 +18,12 @@ export default function CompanyDashboard() {
       {/* Metrics */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
-          { label: "Leads", value: company.leadsCount, icon: "👥" },
-          { label: "Offers Sent", value: company.offersCount, icon: "💼" },
-          { label: "Active Trials", value: 3, icon: "🎯" },
-          { label: "Revenue", value: "8.5M", icon: "💰" },
+          { label: "Leads", value: company.leadsCount },
+          { label: "Offers sent", value: company.offersCount },
+          { label: "Active trials", value: 3 },
+          { label: "Credits spent (30d)", value: "128" },
         ].map((metric) => (
           <Card key={metric.label} className="p-4">
-            <div className="text-xl mb-1">{metric.icon}</div>
             <p className="text-xs text-ink-soft mb-1">{metric.label}</p>
             <p className="text-lg font-bold text-ink">{metric.value}</p>
           </Card>
@@ -35,8 +34,8 @@ export default function CompanyDashboard() {
       <Card className="p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-semibold text-ink">Recent Offers Sent</h3>
-          <a href="/company/offers" className="text-xs text-brand">
-            View all →
+          <a href="/app/company/offers" className="text-xs text-brand">
+            View all
           </a>
         </div>
         <div className="space-y-3">

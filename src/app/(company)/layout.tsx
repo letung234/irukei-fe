@@ -2,20 +2,20 @@
 
 import React, { useState } from "react";
 import AppShell from "@/components/AppShell";
-import Button from "@/components/ui/Button";
 import { mockCompanies } from "@/lib/mock-data";
 import Link from "next/link";
 import { cn } from "@/utils/cn";
 
 const navItems = [
-  { href: "/company/dashboard", label: "Dashboard", icon: "📊" },
-  { href: "/company/marketplace", label: "Marketplace", icon: "🛍️" },
-  { href: "/company/leads", label: "Leads", icon: "👥" },
-  { href: "/company/offers", label: "Offers", icon: "💼" },
-  { href: "/company/trial-students", label: "Trials", icon: "🎯" },
-  { href: "/company/services", label: "Services", icon: "🔧" },
-  { href: "/company/profile", label: "Profile", icon: "🏢" },
-  { href: "/company/settings", label: "Settings", icon: "⚙️" },
+  { href: "/app/company/dashboard", label: "Dashboard" },
+  { href: "/marketplace", label: "Marketplace" },
+  { href: "/app/company/leads", label: "Leads" },
+  { href: "/app/company/offers", label: "Offers" },
+  { href: "/app/company/trial-students", label: "Trial Students" },
+  { href: "/app/company/services", label: "Services" },
+  { href: "/app/company/profile", label: "Profile" },
+  { href: "/app/company/mail", label: "Mail", locked: true },
+  { href: "/app/company/settings", label: "Settings" },
 ];
 
 function CompanyHeader() {
@@ -23,26 +23,35 @@ function CompanyHeader() {
   const currentCompany = mockCompanies[0];
 
   return (
-    <div className="flex items-center justify-between flex-1">
+    <div className="flex items-center justify-between flex-1 gap-4">
       <div className="relative">
         <button
+          type="button"
           onClick={() => setShowOrgSelector(!showOrgSelector)}
-          className="flex items-center gap-2 px-3 py-1 rounded-md bg-bg-muted hover:bg-bg-hover transition-colors"
+          className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-bg-muted hover:bg-bg-hover transition-colors text-sm font-medium text-ink"
+          aria-expanded={showOrgSelector}
+          aria-haspopup="listbox"
         >
-          <span className="text-sm font-medium text-ink">
-            {currentCompany.name}
+          Workspace: {currentCompany.name}
+          <span className="text-ink-lighter text-xs" aria-hidden>
+            ▾
           </span>
-          <span className="text-xs">▼</span>
         </button>
         {showOrgSelector && (
-          <div className="absolute top-full left-0 mt-1 w-64 bg-bg-elevated border border-line rounded-md shadow-lg z-50 p-2">
+          <div
+            className="absolute top-full left-0 mt-1 w-64 bg-bg-elevated border border-line rounded-md shadow-lg z-50 p-2"
+            role="listbox"
+          >
             {mockCompanies.map((co) => (
               <button
                 key={co.id}
+                type="button"
+                role="option"
+                aria-selected={co.id === currentCompany.id}
                 className={cn(
                   "w-full text-left px-3 py-2 rounded-md text-sm transition-colors",
                   co.id === currentCompany.id
-                    ? "bg-brand-soft text-brand"
+                    ? "bg-brand-soft text-brand-ink"
                     : "hover:bg-bg-hover text-ink",
                 )}
               >
@@ -52,12 +61,12 @@ function CompanyHeader() {
           </div>
         )}
       </div>
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
         <div className="text-right hidden md:block">
-          <p className="text-sm font-medium text-ink">Company Account</p>
+          <p className="text-sm font-medium text-ink">Company</p>
           <p className="text-xs text-ink-soft">{currentCompany.city}</p>
         </div>
-        <div className="w-8 h-8 rounded-full bg-brand text-white flex items-center justify-center text-sm font-semibold">
+        <div className="w-8 h-8 rounded-md bg-brand text-white flex items-center justify-center text-sm font-semibold">
           {currentCompany.avatar}
         </div>
       </div>
@@ -66,45 +75,41 @@ function CompanyHeader() {
 }
 
 function CompanySidebar() {
-  const currentPath = typeof window !== "undefined" ? window.location.pathname : "";
+  const currentPath =
+    typeof window !== "undefined" ? window.location.pathname : "";
 
   return (
     <div className="flex flex-col h-full overflow-y-auto">
       <div className="p-4 border-b border-line">
-        <h3 className="font-semibold text-ink">Navigation</h3>
+        <h3 className="text-sm font-semibold text-ink">Company</h3>
       </div>
-
-      <nav className="flex-1 overflow-y-auto py-4 px-2">
+      <nav className="flex-1 overflow-y-auto py-4 px-2" aria-label="Company">
         <ul className="space-y-1">
           {navItems.map((item) => {
-            const isActive = currentPath.includes(
-              item.href.split("/").pop() || ""
-            );
+            const isActive =
+              currentPath === item.href || currentPath.startsWith(item.href);
             return (
               <li key={item.href}>
                 <Link
-                  href={item.href}
+                  href={item.locked ? "#" : item.href}
                   className={cn(
-                    "flex items-center gap-3 px-4 py-2 rounded-md text-sm transition-colors",
+                    "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors",
                     isActive
-                      ? "bg-brand-soft text-brand font-medium"
+                      ? "bg-brand-soft text-brand-ink font-medium"
                       : "text-ink-soft hover:text-ink hover:bg-bg-hover",
+                    item.locked && "opacity-50 pointer-events-none",
                   )}
                 >
-                  <span className="text-lg">{item.icon}</span>
                   <span className="flex-1">{item.label}</span>
+                  {item.locked && (
+                    <span className="text-xs text-ink-lighter">No access</span>
+                  )}
                 </Link>
               </li>
             );
           })}
         </ul>
       </nav>
-
-      <div className="border-t border-line p-4">
-        <Button size="md" variant="danger" fullWidth>
-          Logout
-        </Button>
-      </div>
     </div>
   );
 }

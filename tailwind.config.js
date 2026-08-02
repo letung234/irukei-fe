@@ -45,6 +45,9 @@ module.exports = {
         info: "var(--info)",
         "info-soft": "var(--info-soft)",
         "info-ink": "var(--info-ink)",
+
+        "overlay-dark": "var(--overlay-dark)",
+        "overlay-light": "var(--overlay-light)",
       },
       fontFamily: {
         sans: "var(--font-sans)",

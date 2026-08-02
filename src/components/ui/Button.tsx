@@ -3,7 +3,12 @@
 import React from "react";
 import { cn } from "@/utils/cn";
 
-export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
+export type ButtonVariant =
+  | "primary"
+  | "secondary"
+  | "ghost"
+  | "danger"
+  | "outline";
 export type ButtonSize = "sm" | "md" | "lg";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -15,22 +20,26 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
-    "bg-brand-600 text-white hover:bg-brand-700 focus:ring-brand-500 disabled:bg-brand-100",
+    "bg-brand text-white hover:bg-brand-ink focus:ring-brand disabled:opacity-50",
   secondary:
-    "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 focus:ring-gray-400",
-  ghost: "bg-transparent text-brand-600 hover:bg-brand-50 focus:ring-brand-500",
-  danger: "bg-error text-white hover:bg-red-600 focus:ring-error",
+    "bg-bg-elevated text-ink border border-line hover:bg-bg-muted focus:ring-brand",
+  outline:
+    "bg-transparent text-brand border border-brand hover:bg-brand-soft focus:ring-brand",
+  ghost: "bg-transparent text-brand hover:bg-brand-soft focus:ring-brand",
+  danger:
+    "bg-danger text-white hover:bg-danger-ink focus:ring-danger disabled:opacity-50",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
-  sm: "h-8 px-3 text-xs",
-  md: "h-10 px-4 text-sm",
-  lg: "h-12 px-6 text-base",
+  sm: "h-8 px-3 text-xs rounded-md",
+  md: "h-10 px-4 text-sm rounded-md",
+  lg: "h-12 px-6 text-base rounded-lg",
 };
 
 /**
- * Button
- * Design-system button used across all auth pages.
+ * Button — design-system control.
+ * Variants: primary, secondary, outline, ghost, danger.
+ * Loading replaces children with spinner + “Processing…”.
  */
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   (
@@ -52,7 +61,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={disabled || isLoading}
         aria-busy={isLoading}
         className={cn(
-          "inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors",
+          "inline-flex items-center justify-center gap-2 font-medium transition-colors",
           "focus:outline-none focus:ring-2 focus:ring-offset-2",
           "disabled:cursor-not-allowed disabled:opacity-60",
           variantClasses[variant],
@@ -84,7 +93,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
                 d="M4 12a8 8 0 018-8v8H4z"
               />
             </svg>
-            Processing...
+            Processing…
           </>
         ) : (
           children

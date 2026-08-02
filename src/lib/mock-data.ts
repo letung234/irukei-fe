@@ -331,27 +331,23 @@ export const statusChipConfig = {
 /* ===== ASYNC JOB STATES ===== */
 export const jobStateInfo = {
   queued: {
-    icon: "⏳",
     label: "Queued",
     color: "info",
-    description: "Waiting to start",
+    description: "Waiting in generation queue",
   },
   running: {
-    icon: "⚙️",
     label: "Running",
     color: "info",
-    description: "In progress",
+    description: "Model is building your roadmap",
   },
   ready: {
-    icon: "✓",
     label: "Ready",
     color: "ok",
-    description: "Completed successfully",
+    description: "Roadmap ready to review",
   },
   failed: {
-    icon: "✕",
     label: "Failed",
     color: "danger",
-    description: "Error occurred",
+    description: "Generation stopped with an error",
   },
 };

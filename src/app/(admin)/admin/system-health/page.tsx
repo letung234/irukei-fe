@@ -15,7 +15,7 @@ export default function SystemHealthPage() {
 
   const services = [
     {
-      name: "PostgreSQL Database",
+      name: "MongoDB",
       status: "healthy",
       latency: "2ms",
       checked: "2 min ago",

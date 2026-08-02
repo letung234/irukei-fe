@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 
 export default function PublicLayout({
   children,
@@ -7,80 +8,107 @@ export default function PublicLayout({
 }) {
   return (
     <div className="flex flex-col min-h-screen bg-bg">
-      <header className="bg-bg-elevated border-b border-line sticky top-0 z-50">
-        <nav className="max-w-7xl mx-auto h-16 flex items-center justify-between px-4 md:px-8">
+      <header className="bg-bg-elevated/90 backdrop-blur border-b border-line sticky top-0 z-50">
+        <nav className="max-w-[70rem] mx-auto h-14 md:h-16 flex items-center justify-between px-4 md:px-8">
           <div className="flex items-center gap-8">
-            <h1 className="text-xl font-bold text-brand">Irukei</h1>
+            <Link href="/" className="font-display text-2xl font-semibold text-brand-ink">
+              Irukei
+            </Link>
             <div className="hidden md:flex gap-6">
-              <a
-                href="#marketplace"
+              <Link
+                href="/marketplace"
                 className="text-sm text-ink-soft hover:text-ink transition-colors"
               >
                 Marketplace
-              </a>
+              </Link>
               <a
-                href="#pricing"
+                href="#how"
                 className="text-sm text-ink-soft hover:text-ink transition-colors"
               >
-                Pricing
+                How it works
               </a>
             </div>
           </div>
-          <div className="flex gap-3">
-            <a
+          <div className="flex gap-2 sm:gap-3">
+            <Link
               href="/login"
-              className="px-4 py-2 text-sm text-ink hover:bg-bg-muted rounded-md transition-colors"
+              className="px-3 sm:px-4 py-2 text-sm text-ink hover:bg-bg-muted rounded-md transition-colors"
             >
-              Login
-            </a>
-            <a
-              href="/signup"
-              className="px-4 py-2 text-sm bg-brand text-white rounded-md hover:bg-brand-ink transition-colors"
+              Log in
+            </Link>
+            <Link
+              href="/login"
+              className="px-3 sm:px-4 py-2 text-sm bg-brand text-white rounded-md hover:bg-brand-ink transition-colors"
             >
-              Sign Up
-            </a>
+              Register
+            </Link>
           </div>
         </nav>
       </header>
 
-      {/* Main Content */}
       <main className="flex-1">{children}</main>
 
-      {/* Footer */}
       <footer className="bg-bg-elevated border-t border-line mt-16">
-        <div className="max-w-7xl mx-auto py-8 px-4 md:px-8">
+        <div className="max-w-[70rem] mx-auto py-10 px-4 md:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
             <div>
-              <h4 className="font-semibold text-ink mb-4">Product</h4>
+              <h4 className="font-semibold text-ink mb-3">Product</h4>
               <ul className="space-y-2 text-sm text-ink-soft">
-                <li><a href="#" className="hover:text-ink">Marketplace</a></li>
-                <li><a href="#" className="hover:text-ink">Pricing</a></li>
-                <li><a href="#" className="hover:text-ink">For Students</a></li>
+                <li>
+                  <Link href="/marketplace" className="hover:text-ink">
+                    Marketplace
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/ui" className="hover:text-ink">
+                    Design system
+                  </Link>
+                </li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold text-ink mb-4">Company</h4>
+              <h4 className="font-semibold text-ink mb-3">Apps</h4>
               <ul className="space-y-2 text-sm text-ink-soft">
-                <li><a href="#" className="hover:text-ink">About</a></li>
-                <li><a href="#" className="hover:text-ink">Blog</a></li>
-                <li><a href="#" className="hover:text-ink">Careers</a></li>
+                <li>
+                  <Link href="/app/student/dashboard" className="hover:text-ink">
+                    Student
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/app/company/dashboard" className="hover:text-ink">
+                    Company
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/app/org/roles" className="hover:text-ink">
+                    Org admin
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/admin/system-health" className="hover:text-ink">
+                    System admin
+                  </Link>
+                </li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold text-ink mb-4">Legal</h4>
+              <h4 className="font-semibold text-ink mb-3">Legal</h4>
               <ul className="space-y-2 text-sm text-ink-soft">
-                <li><a href="#" className="hover:text-ink">Privacy</a></li>
-                <li><a href="#" className="hover:text-ink">Terms</a></li>
-                <li><a href="#" className="hover:text-ink">Contact</a></li>
+                <li>
+                  <span className="hover:text-ink">Privacy</span>
+                </li>
+                <li>
+                  <span className="hover:text-ink">Terms</span>
+                </li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold text-ink mb-4">Language</h4>
+              <h4 className="font-semibold text-ink mb-3">Language</h4>
               <p className="text-sm text-ink-soft">English (US)</p>
             </div>
           </div>
-          <div className="border-t border-line pt-8 text-center text-sm text-ink-soft">
-            <p>&copy; 2024 Irukei Learning. All rights reserved.</p>
+          <div className="border-t border-line pt-6 text-center text-sm text-ink-soft">
+            <p>© {new Date().getFullYear()} Irukei. All rights reserved.</p>
           </div>
         </div>
       </footer>

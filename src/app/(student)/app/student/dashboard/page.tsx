@@ -39,24 +39,20 @@ export default function StudentDashboard() {
         </div>
       </Card>
 
-      {/* Stats Grid */}
       <div className="grid md:grid-cols-4 gap-4">
         {[
           {
             label: "Credits",
             value: student.creditsBalance.toLocaleString(),
-            icon: "💰",
           },
-          { label: "Roadmaps", value: student.roadmapCount, icon: "🗺️" },
+          { label: "Roadmaps", value: student.roadmapCount },
           {
-            label: "Offers Received",
+            label: "Offers received",
             value: student.offersReceived,
-            icon: "💼",
           },
-          { label: "Skills", value: student.skills.length, icon: "⭐" },
+          { label: "Skills", value: student.skills.length },
         ].map((stat) => (
           <Card key={stat.label} className="p-4">
-            <div className="text-2xl mb-2">{stat.icon}</div>
             <p className="text-sm text-ink-soft mb-1">{stat.label}</p>
             <p className="text-2xl font-bold text-ink">{stat.value}</p>
           </Card>
@@ -93,8 +89,11 @@ export default function StudentDashboard() {
       <div>
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-ink">Recent Offers</h3>
-          <a href="/student/offers" className="text-sm text-brand hover:text-brand-ink">
-            View all →
+          <a
+            href="/app/student/offers"
+            className="text-sm text-brand hover:text-brand-ink"
+          >
+            View all
           </a>
         </div>
         <div className="grid gap-4">

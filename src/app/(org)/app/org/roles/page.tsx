@@ -63,7 +63,7 @@ export default function RolesPage() {
                       <div className="flex items-center gap-1">
                         <span>{perm.name}</span>
                         {isHighRisk && (
-                          <Badge variant="warning" size="sm">⚠️ High Risk</Badge>
+                          <Badge variant="warning" size="sm">High risk</Badge>
                         )}
                       </div>
                     }
